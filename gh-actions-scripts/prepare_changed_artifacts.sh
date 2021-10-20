@@ -152,7 +152,6 @@ echo "::endgroup::"
 # print job outputs (make sure they are also set in needs.prepare_ci_run.outputs !!!)
 echo "::set-output name=BUILD_INSTALLER::$BUILD_INSTALLER"
 echo "::set-output name=BUILD_CLI::$BUILD_CLI"
-echo "::set-output name=BUILD_BRIDGE::$BUILD_BRIDGE"
 echo "::set-output name=BUILD_MATRIX::$matrix_config"
 echo ""
 echo "The following artifacts have changes and will be built fresh:"
