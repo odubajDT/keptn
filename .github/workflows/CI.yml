@@ -539,6 +539,11 @@ jobs:
             version=${{ env.VERSION }}
           push: true
 
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
       - name: "Download Build Config from last successful build"
         uses: dawidd6/action-download-artifact@v2.15.0
         id: download_last_build_config
