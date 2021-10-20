@@ -501,8 +501,6 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
-        with:
-          install: true
 
       - name: Docker Cache
         id: docker_cache
@@ -531,8 +529,8 @@ jobs:
         with:
           context: ${{ matrix.config.working-dir }}
           tags: |
-            keptn/${{ matrix.config.artifact }}:${{ env.VERSION }}.${{ env.DATETIME }}
             keptn/${{ matrix.config.artifact }}:${{ env.VERSION }}
+            keptn/${{ matrix.config.artifact }}:${{ env.VERSION }}.${{ env.DATETIME }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
           build-args: |
@@ -566,7 +564,6 @@ jobs:
           DATETIME: ${{ env.DATETIME }}
           IMAGE: keptn/${{ matrix.config.artifact }}
           DOCKER_FOLDER: ${{ matrix.config.working-dir }}
-          CONTENT_TYPE: "application/vnd.docker.distribution.manifest.v2+json"
         run: |
           # Fetch last image datetime from build config
           LAST_DATETIME=$(grep 'DATETIME' "./last-build-config/build-config.env" | cut -d '=' -f2)
