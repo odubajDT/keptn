@@ -24,6 +24,9 @@ COPY . .
 
 FROM builder-base as builder-test
 
+
+
+
 CMD go test -race -coverprofile=coverage.txt -covermode=atomic -v ./... && mv ./coverage.txt /shared/coverage.txt
 
 FROM builder-base as builder
