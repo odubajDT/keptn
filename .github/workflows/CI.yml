@@ -588,9 +588,3 @@ jobs:
 
           # Push newly tagged image
           docker push "${NEW_TAG1}" && docker push "${NEW_TAG2}"
-
-      - id: docker_logout
-        if: always()
-        name: Docker logout
-        run: |
-          docker logout
