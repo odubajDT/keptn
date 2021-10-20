@@ -484,7 +484,7 @@ jobs:
   # Build Docker Images                                                      #
   ############################################################################
   docker_build:
-    needs: [prepare_ci_run, unit-tests-microservices, prepare_github_pr_comment]
+    needs: [prepare_ci_run, unit-tests-microservices]
     name: Docker Build
     runs-on: ubuntu-20.04
     if: needs.prepare_ci_run.outputs.BUILD_MATRIX_EMPTY == 'false'
