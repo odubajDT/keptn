@@ -370,34 +370,13 @@ jobs:
     needs: prepare_ci_run
     name: Build Helm Charts
     if: (needs.prepare_ci_run.outputs.BUILD_EVERYTHING == 'true') || (needs.prepare_ci_run.outputs.BUILD_INSTALLER == 'true')
-    runs-on: ubuntu-20.04
-    env:
-      BRANCH: ${{ needs.prepare_ci_run.outputs.BRANCH }}
-      VERSION: ${{ needs.prepare_ci_run.outputs.VERSION }}
-      KEPTN_SPEC_VERSION: ${{ needs.prepare_ci_run.outputs.KEPTN_SPEC_VERSION }}
-      DATETIME: ${{ needs.prepare_ci_run.outputs.DATE }}${{ needs.prepare_ci_run.outputs.TIME }}
-      GIT_SHA: ${{ needs.prepare_ci_run.outputs.GIT_SHA }}
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2.4.0
-
-      - name: Build Helm Charts
-        id: build_helm_charts
-        run: |
-          if [[ "$BRANCH" == "master" ]] || [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-            # use VERSION.DATETIME for the image tag (e.g., nightly build)
-            ./gh-actions-scripts/build_helm_charts.sh "${VERSION}" "${VERSION}.${DATETIME}" "${KEPTN_SPEC_VERSION}"
-          else
-            # just use VERSION for the image tag
-            ./gh-actions-scripts/build_helm_charts.sh "${VERSION}" "${VERSION}" "${KEPTN_SPEC_VERSION}"
-          fi
-
-      - name: Upload Helm Chart as an artifact
-        id: upload_helm_chart
-        uses: actions/upload-artifact@v2
-        with:
-          name: keptn-installer
-          path: keptn-charts/*.tgz
+    uses: keptn/keptn/.github/workflows/build-helm-charts.yml@chore/release-automation
+    with:
+      branch: ${{ needs.prepare_ci_run.outputs.BRANCH }}
+      version: ${{ needs.prepare_ci_run.outputs.VERSION }}
+      keptn-spec-version: ${{ needs.prepare_ci_run.outputs.KEPTN_SPEC_VERSION }}
+      datetime: ${{ needs.prepare_ci_run.outputs.DATE }}${{ needs.prepare_ci_run.outputs.TIME }}
+      git-sha: ${{ needs.prepare_ci_run.outputs.GIT_SHA }}
 
   ############################################################################
   # Build Docker Images                                                      #
