@@ -1,0 +1,90 @@
+name: Pre-Release
+on:
+  workflow_dispatch:
+    inputs:
+      semver-type:
+        description: 'Can be one of [major,minor,patch]. This will enforce a new pre-release with the specified semantic version type bumped.'
+        required: false
+env:
+  NODE_VERSION: 14
+  KEPTN_BOT_NAME: "Keptn Bot"
+  KEPTN_BOT_EMAIL: "keptn-bot <86361500+keptn-bot@users.noreply.github.com>"
+  RELEASE_NOTES_FILE: "RELEASE-BODY.md"
+  PRERELEASE_KEYWORD: "next"
+defaults:
+  run:
+    shell: bash
+jobs:
+  pre-release:
+    name: Pre-Release
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.KEPTN_BOT_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Configure Git
+        env:
+          KEPTN_BOT_NAME: ${{ env.KEPTN_BOT_NAME }}
+          KEPTN_BOT_EMAIL: ${{ env.KEPTN_BOT_EMAIL }}
+        run: |
+          git config user.name "$KEPTN_BOT_NAME"
+          git config user.email "$KEPTN_BOT_EMAIL"
+
+      - name: Prepare GitHub Release Notes
+        run: |
+          npx standard-version@^9.3.1 --prerelease "${{ env.PRERELEASE_KEYWORD }}" -i "${{ env.RELEASE_NOTES_FILE }}" --skip.commit --skip.tag --header ""
+
+      - name: Enhance Release Notes with Build Metadata
+        run: |
+          echo "#### Build Information" >> "${{ env.RELEASE_NOTES_FILE }}"
+          echo "" >> "${{ env.RELEASE_NOTES_FILE }}"
+          echo "**GitHub Actions Run:** $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" >> "${{ env.RELEASE_NOTES_FILE }}"
+
+      - name: Create pre-release package
+        id: create-release-package
+        env:
+          GITHUB_TOKEN: ${{ secrets.KEPTN_BOT_TOKEN }}
+        run: |
+          echo "🚀 Creating pre-release package now..."
+          npx standard-version@^9.3.1 --prerelease "${{ env.PRERELEASE_KEYWORD }}" --skip.commit --skip.changelog
+
+          echo "::set-output name=tag-name::$(git describe --tags --abbrev=0)"
+          echo "⚡️ Pushing changes to remote repository..."
+          git push --follow-tags
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.KEPTN_BOT_TOKEN }}
+          RELEASE_TAG: ${{ steps.create-release-package.outputs.tag-name }}
+        run: |
+          gh release create "$RELEASE_TAG" --prerelease --notes-file "${{ env.RELEASE_NOTES_FILE }}" --title "$RELEASE_TAG"
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        # only run docker login on pushes; also for PRs, but only if this is not a fork
+        if: needs.prepare_ci_run.outputs.RELEASE_BUILD == 'true' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository)
+        # note: GH does not allow to access secrets for PRs from a forked repositories due to security reasons
+        # that's fine, but it means we can't push images to dockerhub
+        with:
+          registry: "ghcr.io"
+          username: "keptn-bot"
+          password: ${{ secrets.KEPTN_BOT_TOKEN }}
+
+      - name: Login to Quay.io
+        uses: docker/login-action@v1
+        # only run docker login on pushes; also for PRs, but only if this is not a fork
+        if: needs.prepare_ci_run.outputs.RELEASE_BUILD == 'true' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository)
+        # note: GH does not allow to access secrets for PRs from a forked repositories due to security reasons
+        # that's fine, but it means we can't push images to dockerhub
+        with:
+          registry: "quay.io"
+          username: ${{ secrets.QUAY_USER }}
+          password: ${{ secrets.QUAY_TOKEN }}
