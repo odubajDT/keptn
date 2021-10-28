@@ -11,9 +11,6 @@ on:
       datetime:
         type: string
         required: true
-      git-sha:
-        type: string
-        required: true
       keptn-spec-version:
         type: string
         required: true
@@ -31,7 +28,6 @@ jobs:
       VERSION: ${{ inputs.version }}
       KEPTN_SPEC_VERSION: ${{ inputs.keptn-spec-version }}
       DATETIME: ${{ inputs.datetime }}
-      GIT_SHA: ${{ inputs.git-sha }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2.3.5

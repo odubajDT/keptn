@@ -375,7 +375,6 @@ jobs:
       version: ${{ needs.prepare_ci_run.outputs.VERSION }}
       keptn-spec-version: ${{ needs.prepare_ci_run.outputs.KEPTN_SPEC_VERSION }}
       datetime: ${{ needs.prepare_ci_run.outputs.DATE }}${{ needs.prepare_ci_run.outputs.TIME }}
-      git-sha: ${{ needs.prepare_ci_run.outputs.GIT_SHA }}
 
   ############################################################################
   # Build Docker Images                                                      #
