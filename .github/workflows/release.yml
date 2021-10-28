@@ -16,6 +16,7 @@ jobs:
     outputs:
       next-version: ${{ steps.version_number.outputs.next-version }}
       branch: ${{ steps.current_branch.outputs.branch }}
+      keptn-spec-version: ${{ steps.keptn_spec_version.outputs.keptn-spec-version }}
     steps:
       - name: Find next version number
         id: version_number
@@ -31,6 +32,14 @@ jobs:
           branch=${GITHUB_REF#refs/heads/}
           echo "::set-output name=branch::${branch}"
 
+      - name: Get keptn spec version
+        id: keptn_spec_version
+        run: |
+          git submodule update --init
+          cd specification
+          KEPTN_SPEC_VERSION=$(git describe --tags)
+          echo "::set-output name=keptn-spec-version::${KEPTN_SPEC_VERSION}"
+
   ############################################################################
   # Build Helm Charts (only relevant for build_everything)                   #
   ############################################################################
@@ -41,9 +50,7 @@ jobs:
     with:
       branch: ${{ needs.prepare.outputs.branch }}
       version: ${{ needs.prepare.outputs.next-version }}
-      keptn-spec-version: ${{ needs.prepare_ci_run.outputs.KEPTN_SPEC_VERSION }}
-      datetime: ${{ needs.prepare_ci_run.outputs.DATE }}${{ needs.prepare_ci_run.outputs.TIME }}
-      git-sha: ${{ needs.prepare_ci_run.outputs.GIT_SHA }}
+      keptn-spec-version: ${{ needs.prepare.outputs.keptn-spec-version }}
   release:
     name: "Release"
     runs-on: ubuntu-20.04
@@ -66,6 +73,11 @@ jobs:
         run: |
           git config user.name "$KEPTN_BOT_NAME"
           git config user.email "$KEPTN_BOT_EMAIL"
+
+      - name: Download Release Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: ./dist
 
       - name: Prepare GitHub Release Notes
         run: |
@@ -112,3 +124,10 @@ jobs:
           RELEASE_TAG: ${{ steps.create-release-package.outputs.tag-name }}
         run: |
           gh release create "$RELEASE_TAG" --draft --notes-file "${{ env.RELEASE_NOTES_FILE }}" --title "$RELEASE_TAG"
+
+      - name: Upload Release Assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.KEPTN_BOT_TOKEN }}
+          RELEASE_TAG: ${{ steps.create-release-package.outputs.tag-name }}
+        run: |
+          gh release upload "$RELEASE_TAG" ./dist/keptn-installer/*.tgz
