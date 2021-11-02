@@ -11,9 +11,6 @@ on:
       datetime:
         type: string
         required: true
-      git-sha:
-        type: string
-        required: true
 defaults:
   run:
     shell: bash
@@ -67,7 +64,6 @@ jobs:
           BRANCH: ${{ inputs.branch }}
           VERSION: ${{ inputs.version }}
           DATETIME: ${{ inputs.datetime }}
-          GIT_SHA: ${{ inputs.git-sha }}
         run: |
           FILE_ENDING=""
           # overwrite file ending for windows binaries

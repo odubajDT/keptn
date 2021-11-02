@@ -360,7 +360,6 @@ jobs:
       branch: ${{ needs.prepare_ci_run.outputs.BRANCH }}
       version: ${{ needs.prepare_ci_run.outputs.VERSION }}
       datetime: ${{ needs.prepare_ci_run.outputs.DATE }}${{ needs.prepare_ci_run.outputs.TIME }}
-      git-sha: ${{ needs.prepare_ci_run.outputs.GIT_SHA }}
 
   ############################################################################
   # Build Helm Charts (only relevant for build_everything)                   #
