@@ -6,6 +6,7 @@ env:
   KEPTN_BOT_NAME: "Keptn Bot"
   KEPTN_BOT_EMAIL: "keptn-bot <86361500+keptn-bot@users.noreply.github.com>"
   RELEASE_NOTES_FILE: "RELEASE-BODY.md"
+  RELEASE_BUILD: 'true'
 defaults:
   run:
     shell: bash
@@ -43,7 +44,7 @@ jobs:
   ############################################################################
   # Build Helm Charts (only relevant for build_everything)
   ############################################################################
-  helm_charts_build:
+  build-helm-charts:
     needs: prepare
     name: Build Helm Charts
     uses: keptn/keptn/.github/workflows/build-helm-charts.yml@chore/release-automation
@@ -51,6 +52,7 @@ jobs:
       branch: ${{ needs.prepare.outputs.branch }}
       version: ${{ needs.prepare.outputs.next-version }}
       keptn-spec-version: ${{ needs.prepare.outputs.keptn-spec-version }}
+      release: ${{ env.RELEASE_BUILD }}
 
   ############################################################################
   # Build CLI
@@ -62,7 +64,7 @@ jobs:
     with:
       branch: ${{ needs.prepare_ci_run.outputs.BRANCH }}
       version: ${{ needs.prepare_ci_run.outputs.VERSION }}
-      datetime: ${{ needs.prepare_ci_run.outputs.DATE }}${{ needs.prepare_ci_run.outputs.TIME }}
+      release: ${{ env.RELEASE_BUILD }}
 
   ############################################################################
   # Release

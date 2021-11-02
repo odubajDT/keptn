@@ -10,7 +10,13 @@ on:
         required: true
       datetime:
         type: string
-        required: true
+        required: false
+        default: ''
+      release:
+        description: 'Set to true if the current build is for a release'
+        type: boolean
+        required: false
+        default: false
 defaults:
   run:
     shell: bash
@@ -63,6 +69,7 @@ jobs:
           BRANCH: ${{ inputs.branch }}
           VERSION: ${{ inputs.version }}
           DATETIME: ${{ inputs.datetime }}
+          RELEASE_BUILD: ${{ inputs.release }}
         run: |
           FILE_ENDING=""
           # overwrite file ending for windows binaries
@@ -74,7 +81,7 @@ jobs:
           OUTPUT_EXECUTABLE_NAME="keptn-${VERSION}-${GOOS}-${GOARCH}${FILE_ENDING}"
           OUTPUT_ARCHIVE_NAME="keptn-${VERSION}-${GOOS}-${GOARCH}" # no need for file-ending in the archive name
 
-          if [[ "$BRANCH" == "master" ]]; then
+          if [[ "$BRANCH" == "master" ]] && [[ "$RELEASE_BUILD" == 'false' ]] && [[ "$DATETIME" != '' ]]; then
             # use VERSION.DATETIME for the cli version (e.g., nightly build)
             VERSION=${VERSION}.${DATETIME}
           fi

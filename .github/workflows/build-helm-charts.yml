@@ -11,6 +11,7 @@ on:
       datetime:
         type: string
         required: false
+        default: ''
       keptn-spec-version:
         type: string
         required: true
@@ -35,7 +36,7 @@ jobs:
       - name: Build Helm Charts
         id: build_helm_charts
         run: |
-          if [[ "$BRANCH" == "master" ]] || [[ "$GITHUB_EVENT_NAME" == "pull_request" ]] && [[ $DATETIME != "" ]]; then
+          if [[ "$BRANCH" == "master" ]] && [[ "$RELEASE_BUILD" == 'false' ]] && [[ $DATETIME != "" ]]; then
             # use VERSION.DATETIME for the image tag (e.g., nightly build)
             ./gh-actions-scripts/build_helm_charts.sh "${VERSION}" "${VERSION}.${DATETIME}" "${KEPTN_SPEC_VERSION}"
           else
