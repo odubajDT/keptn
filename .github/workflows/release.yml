@@ -41,7 +41,7 @@ jobs:
           echo "::set-output name=keptn-spec-version::${KEPTN_SPEC_VERSION}"
 
   ############################################################################
-  # Build Helm Charts (only relevant for build_everything)                   #
+  # Build Helm Charts (only relevant for build_everything)
   ############################################################################
   helm_charts_build:
     needs: prepare
@@ -51,6 +51,23 @@ jobs:
       branch: ${{ needs.prepare.outputs.branch }}
       version: ${{ needs.prepare.outputs.next-version }}
       keptn-spec-version: ${{ needs.prepare.outputs.keptn-spec-version }}
+
+  ############################################################################
+  # Build CLI
+  ############################################################################
+  build-cli:
+    needs: [ prepare_ci_run, unit-tests-cli ]
+    if: (needs.prepare_ci_run.outputs.BUILD_EVERYTHING == 'true') || (needs.prepare_ci_run.outputs.BUILD_CLI == 'true')
+    uses: keptn/keptn/.github/workflows/build-cli.yml@chore/release-automation
+    with:
+      branch: ${{ needs.prepare_ci_run.outputs.BRANCH }}
+      version: ${{ needs.prepare_ci_run.outputs.VERSION }}
+      datetime: ${{ needs.prepare_ci_run.outputs.DATE }}${{ needs.prepare_ci_run.outputs.TIME }}
+      git-sha: ${{ needs.prepare_ci_run.outputs.GIT_SHA }}
+
+  ############################################################################
+  # Release
+  ############################################################################
   release:
     name: "Release"
     runs-on: ubuntu-20.04
