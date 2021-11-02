@@ -58,9 +58,8 @@ jobs:
             ${{ runner.os }}-go-cli
       - name: Build CLI
         env:
-          PLATFORM: "${{ matrix.platform }}"
-          GOARCH: "${{ matrix.GOARCH }}"
-          GOOS: "${{ matrix.GOOS }}"
+          GOARCH: ${{ matrix.GOARCH }}
+          GOOS: ${{ matrix.GOOS }}
           BRANCH: ${{ inputs.branch }}
           VERSION: ${{ inputs.version }}
           DATETIME: ${{ inputs.datetime }}
