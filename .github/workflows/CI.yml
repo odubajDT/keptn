@@ -382,9 +382,9 @@ jobs:
     needs: [prepare_ci_run, unit-tests-microservices]
     name: Docker Build
     if: needs.prepare_ci_run.outputs.BUILD_MATRIX_EMPTY == 'false'
+    uses: keptn/keptn/.github/workflows/build-docker-images.yml@chore/release-automation
     with:
       version: ${{ needs.prepare_ci_run.outputs.VERSION }}
       datetime: ${{ needs.prepare_ci_run.outputs.DATE }}${{ needs.prepare_ci_run.outputs.TIME }}
       build-matrix: ${{ needs.prepare_ci_run.outputs.BUILD_MATRIX }}
       build-everything: ${{ needs.prepare_ci_run.outputs.BUILD_EVERYTHING }}
-    uses: keptn/keptn/.github/workflows/build-docker-images.yml@chore/release-automation

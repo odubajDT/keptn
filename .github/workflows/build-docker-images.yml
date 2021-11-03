@@ -12,7 +12,7 @@ on:
         description: 'Datetime of the current build'
       build-matrix:
         type: string
-        default: ''
+        default: '{}'
         required: true
         description: 'Build matrix generated from changed artifacts in current branch'
       build-everything:
