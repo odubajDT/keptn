@@ -54,7 +54,7 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: Checkout Code
-        uses: actions/checkout@v2.3.5
+        uses: actions/checkout@v2.4.0
       # cache go modules
       - uses: actions/cache@v2.1.6
         with:
