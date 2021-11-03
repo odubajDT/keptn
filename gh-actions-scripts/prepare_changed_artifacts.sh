@@ -144,6 +144,7 @@ matrix_config="${matrix_config%,}]}"
 matrix_config="${matrix_config//'%'/''}"
 matrix_config="${matrix_config//$'\n'/''}"
 matrix_config="${matrix_config//$'\r'/''}"
+matrix_config="${matrix_config//$' '/''}"
 
 echo "::group::Build Matrix"
 echo "$matrix_config"
