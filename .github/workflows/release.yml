@@ -8,6 +8,82 @@ env:
   RELEASE_NOTES_FILE: "RELEASE-BODY.md"
   RELEASE_BUILD: 'true'
   BUILD_EVERYTHING: 'true'
+
+  BRIDGE_ARTIFACT_PREFIX: "BRIDGE"
+  API_ARTIFACT_PREFIX: "API"
+  OS_ROUTE_SVC_ARTIFACT_PREFIX: "OS_ROUTE_SVC"
+  JMETER_SVC_ARTIFACT_PREFIX: "JMETER_SVC"
+  HELM_SVC_ARTIFACT_PREFIX: "HELM_SVC"
+  APPROVAL_SVC_ARTIFACT_PREFIX: "APPROVAL_SVC"
+  DISTRIBUTOR_ARTIFACT_PREFIX: "DISTRIBUTOR"
+  SHIPYARD_CONTROLLER_ARTIFACT_PREFIX: "SHIPYARD_CONTROLLER"
+  SECRET_SVC_ARTIFACT_PREFIX: "SECRET_SVC"
+  CONFIGURATION_SVC_ARTIFACT_PREFIX: "CONFIGURATION_SVC"
+  REMEDIATION_SVC_ARTIFACT_PREFIX: "REMEDIATION_SVC"
+  LIGHTHOUSE_SVC_ARTIFACT_PREFIX: "LIGHTHOUSE_SVC"
+  MONGODB_DS_ARTIFACT_PREFIX: "MONGODB_DS"
+  STATISTICS_SVC_ARTIFACT_PREFIX: "STATISTICS_SVC"
+  WEBHOOK_SVC_ARTIFACT_PREFIX: "WEBHOOK_SVC"
+
+  BRIDGE_ARTIFACT: "bridge2"
+  BRIDGE_FOLDER: "bridge/"
+  BRIDGE_DOCKER_TEST_TARGET: "builder-test-unit"
+
+  API_ARTIFACT: "api"
+  API_FOLDER: "api/"
+  API_DOCKER_TEST_TARGET: "builder-test"
+
+  OS_ROUTE_SVC_ARTIFACT: "openshift-route-service"
+  OS_ROUTE_SVC_FOLDER: "platform-support/openshift-route-service/"
+  OS_ROUTE_SVC_DOCKER_TEST_TARGET: "builder-test"
+
+  JMETER_SVC_ARTIFACT: "jmeter-service"
+  JMETER_SVC_FOLDER: "jmeter-service/"
+  JMETER_SVC_DOCKER_TEST_TARGET: "builder-test"
+
+  HELM_SVC_ARTIFACT: "helm-service"
+  HELM_SVC_FOLDER: "helm-service/"
+  HELM_SVC_DOCKER_TEST_TARGET: "builder-test"
+
+  APPROVAL_SVC_ARTIFACT: "approval-service"
+  APPROVAL_SVC_FOLDER: "approval-service/"
+  APPROVAL_SVC_DOCKER_TEST_TARGET: "builder-test"
+
+  DISTRIBUTOR_ARTIFACT: "distributor"
+  DISTRIBUTOR_FOLDER: "distributor/"
+  DISTRIBUTOR_DOCKER_TEST_TARGET: "builder-test"
+
+  SHIPYARD_CONTROLLER_ARTIFACT: "shipyard-controller"
+  SHIPYARD_CONTROLLER_FOLDER: "shipyard-controller/"
+  SHIPYARD_CONTROLLER_DOCKER_TEST_TARGET: "builder-test"
+
+  SECRET_SVC_ARTIFACT: "secret-service"
+  SECRET_SVC_FOLDER: "secret-service/"
+  SECRET_SVC_DOCKER_TEST_TARGET: "builder-test"
+
+  CONFIGURATION_SVC_ARTIFACT: "configuration-service"
+  CONFIGURATION_SVC_FOLDER: "configuration-service/"
+  CONFIGURATION_SVC_DOCKER_TEST_TARGET: "builder-test"
+
+  REMEDIATION_SVC_ARTIFACT: "remediation-service"
+  REMEDIATION_SVC_FOLDER: "remediation-service/"
+  REMEDIATION_SVC_DOCKER_TEST_TARGET: "builder-test"
+
+  LIGHTHOUSE_SVC_ARTIFACT: "lighthouse-service"
+  LIGHTHOUSE_SVC_FOLDER: "lighthouse-service/"
+  LIGHTHOUSE_SVC_DOCKER_TEST_TARGET: "builder-test"
+
+  MONGODB_DS_ARTIFACT: "mongodb-datastore"
+  MONGODB_DS_FOLDER: "mongodb-datastore/"
+  MONGODB_DS_DOCKER_TEST_TARGET: "builder-test"
+
+  STATISTICS_SVC_ARTIFACT: "statistics-service"
+  STATISTICS_SVC_FOLDER: "statistics-service/"
+  STATISTICS_SVC_DOCKER_TEST_TARGET: "builder-test"
+
+  WEBHOOK_SVC_ARTIFACT: "webhook-service"
+  WEBHOOK_SVC_FOLDER: "webhook-service/"
+  WEBHOOK_SVC_DOCKER_TEST_TARGET: "builder-test"
 defaults:
   run:
     shell: bash
@@ -19,6 +95,11 @@ jobs:
       next-version: ${{ steps.version_number.outputs.next-version }}
       branch: ${{ steps.current_branch.outputs.branch }}
       keptn-spec-version: ${{ steps.keptn_spec_version.outputs.keptn-spec-version }}
+      BUILD_EVERYTHING: ${{ steps.build_everything.outputs.BUILD_EVERYTHING }}
+      BUILD_INSTALLER: ${{ steps.check_modified_files.outputs.BUILD_INSTALLER }}
+      BUILD_CLI: ${{ steps.check_modified_files.outputs.BUILD_CLI }}
+      BUILD_MATRIX: ${{ steps.check_modified_files.outputs.BUILD_MATRIX }}
+      BUILD_MATRIX_EMPTY: ${{ steps.check_modified_files.outputs.BUILD_MATRIX_EMPTY }}
     steps:
       - name: Find next version number
         id: version_number
@@ -42,6 +123,13 @@ jobs:
           KEPTN_SPEC_VERSION=$(git describe --tags)
           echo "::set-output name=keptn-spec-version::${KEPTN_SPEC_VERSION}"
 
+      - name: Prepare artifact build matrix
+        id: check_modified_files
+        env:
+          BUILD_EVERYTHING: true
+        run: |
+          ./gh-actions-scripts/prepare_changed_artifacts.sh ""
+
   ############################################################################
   # Build Docker Images                                                      #
   ############################################################################
@@ -50,12 +138,10 @@ jobs:
     name: Docker Build
     runs-on: ubuntu-20.04
     strategy:
-      matrix: ${{ fromJson(needs.prepare_ci_run.outputs.BUILD_MATRIX) }}
+      matrix: ${{ fromJson(needs.prepare.outputs.BUILD_MATRIX) }}
     env:
-      BRANCH: ${{ needs.prepare_ci_run.outputs.BRANCH }}
-      VERSION: ${{ needs.prepare_ci_run.outputs.VERSION }}
-      DATETIME: ${{ needs.prepare_ci_run.outputs.DATE }}${{ needs.prepare_ci_run.outputs.TIME }}
-      GIT_SHA: ${{ needs.prepare_ci_run.outputs.GIT_SHA }}
+      BRANCH: ${{ needs.prepare.outputs.branch }}
+      VERSION: ${{ needs.prepare.outputs.next-version }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2.4.0
@@ -75,18 +161,14 @@ jobs:
 
       - id: docker_build_image
         name: "Docker Build keptn/${{ matrix.config.artifact }}"
-        if: matrix.config.should-push-image == 'true' && ( matrix.config.should-run == 'true' || ( needs.prepare_ci_run.outputs.BUILD_EVERYTHING == 'true' && needs.prepare_ci_run.outputs.LAST_SUCCESSFUL_RUN_ID == 'null' ) )
         uses: docker/build-push-action@v2
         with:
           context: ${{ matrix.config.working-dir }}
           tags: |
             keptn/${{ matrix.config.artifact }}:${{ env.VERSION }}
-            keptn/${{ matrix.config.artifact }}:${{ env.VERSION }}.${{ env.DATETIME }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
           build-args: |
             version=${{ env.VERSION }}
-          push: true
+          push: ${{ matrix.config.should-push-image }}
           pull: true
 
   ############################################################################
@@ -106,7 +188,7 @@ jobs:
   # Build CLI
   ############################################################################
   build-cli:
-    needs: [ prepare_ci_run, unit-tests-cli ]
+    needs: [prepare_ci_run]
     if: (needs.prepare_ci_run.outputs.BUILD_EVERYTHING == 'true') || (needs.prepare_ci_run.outputs.BUILD_CLI == 'true')
     uses: keptn/keptn/.github/workflows/build-cli.yml@chore/release-automation
     with:

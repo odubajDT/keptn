@@ -430,7 +430,7 @@ jobs:
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
           build-args: |
             version=${{ env.VERSION }}
-          push: true
+          push: ${{ matrix.config.should-push-image }}
           pull: true
 
       - name: Move cache
