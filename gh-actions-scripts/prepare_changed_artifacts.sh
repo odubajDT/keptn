@@ -88,7 +88,7 @@ for changed_file in $CHANGED_FILES; do
     if [[ ( $changed_file == ${!artifact_folder}* ) && ( "${!should_build_artifact}" != 'true' ) ]]; then
       echo "Found changes in $artifact"
       IFS= read -r "${should_build_artifact?}" <<< "true"
-      artifact_config=$(jq -n \
+      artifact_config=$(jq -j -n \
         --arg artifact "${!artifact_fullname}" \
         --arg working_dir "${!artifact_folder}" \
         --arg should_run "${!should_build_artifact}" \
@@ -121,7 +121,7 @@ if [[ $BUILD_EVERYTHING == 'true' ]]; then
 
     if [[ "${!should_build_artifact}" != 'true' ]]; then
       echo "Adding unchanged artifact $artifact to build matrix since build everything was requested"
-      artifact_config=$(jq -n \
+      artifact_config=$(jq -j -n \
         --arg artifact "${!artifact_fullname}" \
         --arg working_dir "${!artifact_folder}" \
         --arg should_run "false" \
