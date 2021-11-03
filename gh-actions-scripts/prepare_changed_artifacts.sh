@@ -52,7 +52,7 @@ echo "Changed files:"
 echo "$CHANGED_FILES"
 matrix_config='{"config":['
 # shellcheck disable=SC2016
-build_artifact_template='{"artifact": $artifact, "working-dir": $working_dir, "should-run": $should_run, "docker-test-target": $docker_test_target, "should-push-image": $should_push_image }'
+build_artifact_template='{"artifact":$artifact,"working-dir":$working_dir,"should-run":$should_run,"docker-test-target":$docker_test_target,"should-push-image":$should_push_image}'
 
 echo "Checking changed files against artifacts now"
 echo "::group::Check output"
