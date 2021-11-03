@@ -96,7 +96,7 @@ for changed_file in $CHANGED_FILES; do
         --arg should_push_image "${should_push_image}" \
         "$build_artifact_template"
       )
-      matrix_config="$matrix_config $artifact_config,"
+      matrix_config="$matrix_config$artifact_config,"
     fi
   done
 done
@@ -129,7 +129,7 @@ if [[ $BUILD_EVERYTHING == 'true' ]]; then
         --arg should_push_image "${should_push_image}" \
         "$build_artifact_template"
       )
-      matrix_config="$matrix_config $artifact_config,"
+      matrix_config="$matrix_config$artifact_config,"
     fi
   done
 fi
