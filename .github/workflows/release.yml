@@ -7,6 +7,7 @@ env:
   KEPTN_BOT_EMAIL: "keptn-bot <86361500+keptn-bot@users.noreply.github.com>"
   RELEASE_NOTES_FILE: "RELEASE-BODY.md"
   RELEASE_BUILD: 'true'
+  BUILD_EVERYTHING: 'true'
 defaults:
   run:
     shell: bash
