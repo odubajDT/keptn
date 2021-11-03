@@ -141,9 +141,9 @@ matrix_config="${matrix_config%,}]}"
 
 # Escape newlines for multiline string support in GH actions
 # Reference: https://github.community/t/set-output-truncates-multiline-strings/16852
-matrix_config="${matrix_config//'%'/'%25'}"
-matrix_config="${matrix_config//$'\n'/'%0A'}"
-matrix_config="${matrix_config//$'\r'/'%0D'}"
+matrix_config="${matrix_config//'%'/''}"
+matrix_config="${matrix_config//$'\n'/''}"
+matrix_config="${matrix_config//$'\r'/''}"
 
 echo "::group::Build Matrix"
 echo "$matrix_config"
