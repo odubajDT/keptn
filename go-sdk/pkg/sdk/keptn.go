@@ -245,7 +245,11 @@ func (k *Keptn) createFinishedEventForTriggeredEvent(triggeredEvent cloudevents.
 		genericEvent["result"] = "pass"
 	}
 
-	finishedEventType := strings.TrimSuffix(triggeredEvent.Type(), ".triggered") + ".finished"
+	if strings.HasSuffix(triggeredEvent.Type(), ".started") {
+		finishedEventType := strings.TrimSuffix(triggeredEvent.Type(), ".started") + ".finished"
+	} else if strings.HasSuffix(triggeredEvent.Type(), ".triggered") {
+		finishedEventType := strings.TrimSuffix(triggeredEvent.Type(), ".triggered") + ".finished"
+	}
 	keptnContext, _ := triggeredEvent.Context.GetExtension(KeptnContextCEExtension)
 	c := cloudevents.NewEvent()
 	c.SetID(uuid.New().String())
